@@ -1,5 +1,10 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
+
+class IsAdminUserCustom(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.is_staff
+
 # 1. Only allow access to authenticated customers
 class IsCustomer(BasePermission):
     def has_permission(self, request, view):
@@ -9,15 +14,22 @@ class IsCustomer(BasePermission):
 # 2. Allow only owners to update/delete their carts, wishlists, or orders
 class IsOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
+        customer = self.get_customer(obj)
+        return customer == request.user if customer else False
+
+    def get_customer(self, obj):
+        """
+        Utility function to extract the customer from various objects.
+        """
         if hasattr(obj, 'customer'):
-            return obj.customer == request.user
+            return obj.customer
         elif hasattr(obj, 'cart') and hasattr(obj.cart, 'customer'):
-            return obj.cart.customer == request.user
+            return obj.cart.customer
         elif hasattr(obj, 'wishlist') and hasattr(obj.wishlist, 'customer'):
-            return obj.wishlist.customer == request.user
+            return obj.wishlist.customer
         elif hasattr(obj, 'order') and hasattr(obj.order, 'customer'):
-            return obj.order.customer == request.user
-        return False
+            return obj.order.customer
+        return None
 
 
 # 3. Read-only for unauthenticated users, full access for authenticated users

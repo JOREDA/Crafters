@@ -1,14 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
-from django.contrib.auth.models import AbstractUser
-
 
 class Customer(AbstractUser):
     phone_number = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Add custom related_name to avoid clash with the default User model
     groups = models.ManyToManyField(
         'auth.Group', 
         related_name='customer_set', 
@@ -70,7 +67,7 @@ class ContactMessage(models.Model):
 
 class Cart(models.Model):
     customer = models.ForeignKey(Customer, null=True, blank=True, on_delete=models.SET_NULL)
-    session_token = models.CharField(max_length=255, blank=True, null=True)  # guest carts
+    session_token = models.CharField(max_length=255, blank=True, null=True)  
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,7 +76,6 @@ class Cart(models.Model):
             raise ValidationError("Either customer or session_token is required.")
         if self.customer and self.session_token:
             raise ValidationError("Cannot have both customer and session_token.")
-
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -128,16 +124,15 @@ class Review(models.Model):
     rating = models.IntegerField()
     comment = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
 class ContactUs(models.Model):
-    FirstName = models.TextField(blank=True)
-    LastName = models.TextField(blank=True)
-    
+    FirstName = models.CharField(max_length=255, blank=True)  
+    LastName = models.CharField(max_length=255, blank=True)   
+
 class WebsiteReviews(models.Model):
     review = models.TextField()
-    
+
 class AdminDetails(models.Model):
-    companyname = models.TextField(blank=True)
-    slogan = models.TextField(blank=True)
-    aboutus = models.TextField(blank=True)
-    
+    companyname = models.CharField(max_length=255, blank=True)
+    slogan = models.TextField()
+    aboutus = models.TextField()
