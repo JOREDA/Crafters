@@ -1,158 +1,114 @@
 from django.test import TestCase
-from django.urls import reverse
-from crafters.models import Product, Category, Customer, Cart, CartItem, Order, OrderItem, Payment
+from django.contrib.auth import get_user_model
+from rest_framework.test import APIClient
+from shop.models import Product, ProductVariant, Cart, CartItem, Order
 
-# --------------- PRODUCT MODEL TEST ----------------
-class ProductModelTest(TestCase):
+User = get_user_model()
+
+class ArtisanEcommerceTests(TestCase):
     def setUp(self):
-        self.category = Category.objects.create(name="Electronics", description="Electronic devices")
-        self.product = Product.objects.create(name="Laptop", description="A high-end laptop", price=1200, stock_quantity=10, category=self.category)
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='artisanlover', password='secure123')
+        self.client.force_authenticate(user=self.user)
 
-    def test_product_creation(self):
-        product = self.product
-        self.assertEqual(product.name, "Basket")
-        self.assertEqual(product.price, 1200)
-        self.assertEqual(product.stock_quantity, 10)
-        self.assertEqual(product.category.name, "BambooProducts")
+        self.product = Product.objects.create(
+            name='Handmade Ceramic Vase',
+            description='A beautiful handcrafted vase made by local artisans.',
+            base_price=1500,
+            stock_quantity=10,
+            category='Home Decor'
+        )
 
-    def test_product_str_method(self):
-        product = self.product
-        self.assertEqual(str(product), "Basket")
+        self.variant = ProductVariant.objects.create(
+            product=self.product,
+            name='Medium',
+            additional_price=200,
+            stock=5
+        )
 
-
-# --------------- PRODUCT VIEW TEST ----------------
-class ProductViewTest(TestCase):
-    def setUp(self):
-        self.category = Category.objects.create(name="BambooProducts", description="Product made of bamboo")
-        self.product = Product.objects.create(name="Basket", description="A high-end laptBasketop", price=1200, stock_quantity=10, category=self.category)
-
-    def test_product_list_view(self):
-        response = self.client.get(reverse('product-list'))  # Assuming you have a URL pattern named 'product-list'
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.product.name)
-        self.assertContains(response, self.product.price)
-
-
-# --------------- CUSTOMER MODEL TEST ----------------
-class CustomerModelTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-
-    def test_customer_creation(self):
-        customer = self.customer
-        self.assertEqual(customer.username, "john_doe")
-        self.assertEqual(customer.email, "john@example.com")
-        self.assertTrue(customer.check_password("password123"))
-
-    def test_customer_str_method(self):
-        customer = self.customer
-        self.assertEqual(str(customer), "john_doe")
-
-
-# --------------- CART TEST ----------------
-class CartTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-        self.category = Category.objects.create(name="Electronics", description="Electronic devices")
-        self.product = Product.objects.create(name="Laptop", description="A high-end laptop", price=1200, stock_quantity=10, category=self.category)
-        self.cart = Cart.objects.create(customer=self.customer)
-
-    def test_add_to_cart(self):
-        response = self.client.post(reverse('cart-add'), {'product_id': self.product.id, 'quantity': 1})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.cart.items.count(), 1)
-
-    def test_cart_item_quantity(self):
-        CartItem.objects.create(cart=self.cart, product=self.product, quantity=1)
-        cart_item = self.cart.items.first()
-        self.assertEqual(cart_item.quantity, 1)
-
-
-# --------------- ORDER TEST ----------------
-class OrderTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-        self.category = Category.objects.create(name="Electronics", description="Electronic devices")
-        self.product = Product.objects.create(name="Laptop", description="A high-end laptop", price=1200, stock_quantity=10, category=self.category)
-        self.cart = Cart.objects.create(customer=self.customer)
-        CartItem.objects.create(cart=self.cart, product=self.product, quantity=1)
-
-    def test_create_order(self):
-        response = self.client.post(reverse('order-create'), {'customer': self.customer.id, 'cart': self.cart.id})
+    def test_add_product_to_cart(self):
+        """Ensure user can add artisan product to cart"""
+        response = self.client.post('/api/cart/add/', {
+            'product_variant_id': self.variant.id,
+            'quantity': 2
+        })
         self.assertEqual(response.status_code, 201)
-        order = Order.objects.first()
-        self.assertEqual(order.customer, self.customer)
-        self.assertEqual(order.items.count(), 1)
+        self.assertEqual(CartItem.objects.count(), 1)
 
-    def test_order_total_amount(self):
-        order = Order.objects.create(customer=self.customer, status='pending', subtotal=1200, shipping_cost=50, total_amount=1250)
-        self.assertEqual(order.total_amount, 1250)
+    def test_prevent_adding_more_than_stock(self):
+        """Should not allow adding more items than available"""
+        response = self.client.post('/api/cart/add/', {
+            'product_variant_id': self.variant.id,
+            'quantity': 10
+        })
+        self.assertEqual(response.status_code, 400)
 
-    def test_order_item(self):
-        order = Order.objects.create(customer=self.customer, status='pending', subtotal=1200, shipping_cost=50, total_amount=1250)
-        order_item = OrderItem.objects.create(order=order, product=self.product, quantity=1, price=self.product.price)
-        self.assertEqual(order_item.product.name, "Laptop")
-        self.assertEqual(order_item.quantity, 1)
+    def test_partial_stock_add_to_cart(self):
+        """Should add only available stock and return 206 with a message"""
+        response = self.client.post('/api/cart/add/', {
+            'product_variant_id': self.variant.id,
+            'quantity': 10  # only 5 in stock
+        })
+        self.assertEqual(response.status_code, 206)
+        self.assertIn('partial_fill', response.data)
+        self.assertEqual(response.data['quantity_added'], 5)
 
+    def test_add_nonexistent_variant_to_cart(self):
+        """Should return 404 when product variant does not exist"""
+        response = self.client.post('/api/cart/add/', {
+            'product_variant_id': 9999,
+            'quantity': 1
+        })
+        self.assertEqual(response.status_code, 404)
 
-# --------------- PAYMENT TEST ----------------
-class PaymentTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-        self.order = Order.objects.create(customer=self.customer, status='pending', subtotal=1200, shipping_cost=50, total_amount=1250)
+    def test_guest_can_add_to_cart_session_based(self):
+        """Guest users should be able to add items to a session-based cart"""
+        self.client.force_authenticate(user=None)
+        response = self.client.post('/api/cart/add/', {
+            'product_variant_id': self.variant.id,
+            'quantity': 1
+        })
+        self.assertEqual(response.status_code, 201)
+        # Additional check for session can go here
 
-    def test_payment_success(self):
-        response = self.client.post(reverse('payment'), {'order_id': self.order.id, 'payment_method': 'credit_card', 'amount': 1250})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.order.status, 'paid')
+    def test_user_can_remove_cart_item(self):
+        """User should be able to remove item from their cart"""
+        cart = Cart.objects.get_or_create(user=self.user)[0]
+        item = CartItem.objects.create(cart=cart, product_variant=self.variant, quantity=1)
+        response = self.client.delete(f'/api/cart/remove/{item.id}/')
+        self.assertEqual(response.status_code, 204)
+        self.assertFalse(CartItem.objects.filter(id=item.id).exists())
 
-    def test_payment_failure(self):
-        response = self.client.post(reverse('payment'), {'order_id': self.order.id, 'payment_method': 'credit_card', 'amount': 1000})
-        self.assertEqual(response.status_code, 400)  # Insufficient amount
-        self.assertEqual(self.order.status, 'pending')
+    def test_create_order_from_cart(self):
+        """User can convert cart into order for artisan goods"""
+        CartItem.objects.create(
+            cart=Cart.objects.get_or_create(user=self.user)[0],
+            product_variant=self.variant,
+            quantity=2
+        )
+        response = self.client.post('/api/orders/create/')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Order.objects.count(), 1)
 
+    def test_reduce_stock_after_order(self):
+        """Stock should reduce after successful order"""
+        CartItem.objects.create(
+            cart=Cart.objects.get_or_create(user=self.user)[0],
+            product_variant=self.variant,
+            quantity=3
+        )
+        self.client.post('/api/orders/create/')
+        self.variant.refresh_from_db()
+        self.assertEqual(self.variant.stock, 2)
 
-# --------------- ORDER ITEM TEST ----------------
-class OrderItemTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-        self.category = Category.objects.create(name="Electronics", description="Electronic devices")
-        self.product = Product.objects.create(name="Laptop", description="A high-end laptop", price=1200, stock_quantity=10, category=self.category)
-        self.order = Order.objects.create(customer=self.customer, status='pending', subtotal=1200, shipping_cost=50, total_amount=1250)
-        self.order_item = OrderItem.objects.create(order=self.order, product=self.product, quantity=1, price=self.product.price)
-
-    def test_order_item_creation(self):
-        order_item = self.order_item
-        self.assertEqual(order_item.product.name, "Laptop")
-        self.assertEqual(order_item.quantity, 1)
-        self.assertEqual(order_item.price, 1200)
-
-
-# --------------- CUSTOMER AUTH TEST ----------------
-class CustomerAuthTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-
-    def test_login_success(self):
-        response = self.client.post(reverse('login'), {'username': 'john_doe', 'password': 'password123'})
-        self.assertEqual(response.status_code, 200)
-
-    def test_login_failure(self):
-        response = self.client.post(reverse('login'), {'username': 'john_doe', 'password': 'wrongpassword'})
-        self.assertEqual(response.status_code, 400)  # Invalid login
-
-
-# --------------- CART AND CHECKOUT TEST ----------------
-class CartCheckoutTest(TestCase):
-    def setUp(self):
-        self.customer = Customer.objects.create_user(username="john_doe", email="john@example.com", password="password123")
-        self.category = Category.objects.create(name="Electronics", description="Electronic devices")
-        self.product = Product.objects.create(name="Laptop", description="A high-end laptop", price=1200, stock_quantity=10, category=self.category)
-        self.cart = Cart.objects.create(customer=self.customer)
-        CartItem.objects.create(cart=self.cart, product=self.product, quantity=1)
-
-    def test_checkout(self):
-        response = self.client.post(reverse('checkout'), {'cart_id': self.cart.id, 'payment_method': 'credit_card'})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(self.cart.items.count(), 1)
-        self.assertEqual(self.customer.orders.count(), 1)
+    def test_duplicate_review_block(self):
+        """User should not be allowed to review the same product twice"""
+        self.client.post(f'/api/products/{self.product.id}/reviews/', {
+            'rating': 5,
+            'comment': 'Amazing!'
+        })
+        second_response = self.client.post(f'/api/products/{self.product.id}/reviews/', {
+            'rating': 4,
+            'comment': 'Still good'
+        })
+        self.assertEqual(second_response.status_code, 400)
