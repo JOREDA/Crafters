@@ -11,8 +11,7 @@ import {
   Filter,
   Check
 } from "lucide-react";
-import { useWishlist } from "./contexts/WishlistContext";
-import { useCart } from "./contexts/CartContext";
+import { useWishlist, useCart } from "./contexts";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

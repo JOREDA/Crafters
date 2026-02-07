@@ -1,19 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart, Search, RefreshCcw } from 'lucide-react';
 import { Heart as HeartFilled } from 'lucide-react';
-import { useCart } from '../components/contexts/CartContext';
-import { useWishlist } from '../components/contexts/WishlistContext';
+import { useCart, useWishlist } from '../components/contexts';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { laundryBinProducts } from '../data/products/laundryBin';
+import { getAllProducts } from '../api/products';
 import Navbar from '../components/Navbar';
 
 const LaundryBinPage = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const allProducts = await getAllProducts();
+        const laundry = allProducts.filter(p => p.categoryName?.toLowerCase() === 'laundry' || p.category?.toLowerCase() === 'laundry');
+        setProducts(laundry);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
   const calculateDiscount = (actualPrice, sellingPrice) => {
     return Math.round(((actualPrice - sellingPrice) / actualPrice) * 100);
@@ -82,9 +99,18 @@ const LaundryBinPage = () => {
             <div className="mt-3 w-20 h-1 bg-[#788c7c] mx-auto rounded-full"></div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {laundryBinProducts.map((product) => {
-              const discount = calculateDiscount(product.actualPrice, product.sellingPrice);
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No products found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {products.map((product) => {
+              const discount = calculateDiscount(product.actualPrice, product.sellingPrice || product.price);
               const isInWishlist = wishlistItems.some(item => item.name === product.name);
 
               return (
@@ -201,7 +227,8 @@ const LaundryBinPage = () => {
                 </div>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </>

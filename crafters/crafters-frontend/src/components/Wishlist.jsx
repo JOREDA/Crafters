@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useWishlist } from "../components/contexts/WishlistContext";
+import { useWishlist } from "../components/contexts";
 
 const Wishlist = () => {
   const navigate = useNavigate();

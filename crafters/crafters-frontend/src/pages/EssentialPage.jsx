@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Navbar from '../components/Navbar'
-import Essential from '../components/Products/Essential'
+import Footer from '../components/Footer'
+import { Essential } from '../components/Products'
 
 class EssentialPage extends Component {
   render() {
@@ -8,6 +9,7 @@ class EssentialPage extends Component {
       <div>
         <Navbar/>
         <Essential/>
+        <Footer/>
       </div>
     )
   }

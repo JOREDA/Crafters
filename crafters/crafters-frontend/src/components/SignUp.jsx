@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-import Zoom from "react-reveal/Zoom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -26,55 +25,34 @@ const SignUp = () => {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
-        },
-      });
+    // No backend call here – just fake a successful registration
+    setMessage("✅ Registration successful! Redirecting to login...");
+    setMessageType("success");
 
-      if (error) {
-        if (error.message.toLowerCase().includes("user already registered") || error.message.includes("User already exists")) {
-          setMessage("❌ User already registered. Please login.");
-        } else {
-          setMessage("❌ " + error.message);
-        }
-        setMessageType("error");
-        return;
-      }
+    setFormData({
+      fullName: "",
+      email: "",
+      password: "",
+    });
 
-      setMessage("✅ Registration successful! Redirecting to login...");
-      setMessageType("success");
-
-      setFormData({
-        fullName: "",
-        email: "",
-        password: "",
-      });
-
-      setTimeout(() => {
-        setMessage("");
-        navigate("/login"); // redirect to login page
-      }, 2000);
-    } catch (error) {
-      setMessage("❌ Something went wrong: " + error.message);
-      setMessageType("error");
-    }
+    setTimeout(() => {
+      setMessage("");
+      navigate("/login");
+    }, 2000);
   }
 
   return (
-    <Zoom top>
-      <div className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-40">
-        <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-40"
+    >
+      <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
           <h2 className="text-2xl font-bold text-[#72442c] text-center mb-6">
             Create Your Account
           </h2>
 
-          {/* Message popup */}
           {message && (
             <div
               className={`mb-4 text-center py-2 px-4 rounded-md text-sm font-medium ${
@@ -87,10 +65,11 @@ const SignUp = () => {
             </div>
           )}
 
-          {/* Registration Form */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">Username</label>
+              <label className="block text-sm text-gray-700 mb-1">
+                Username
+              </label>
               <input
                 type="text"
                 name="fullName"
@@ -103,7 +82,9 @@ const SignUp = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">Email</label>
+              <label className="block text-sm text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -116,7 +97,9 @@ const SignUp = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">Password</label>
+              <label className="block text-sm text-gray-700 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -146,8 +129,7 @@ const SignUp = () => {
             </NavLink>
           </p>
         </div>
-      </div>
-    </Zoom>
+      </motion.div>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
+import { useCart, useWishlist } from '../contexts';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
@@ -19,28 +18,40 @@ const RelatedProducts = ({ currentProduct, category }) => {
       try {
         switch (category?.toLowerCase()) {
           case 'home decor':
-            const homeDecor = await import('../Products/HomeDecor.jsx');
-            products = homeDecor.products;
+            {
+              const mod = await import('../../data/products/homeDecor');
+              products = mod.homeDecorProducts || [];
+            }
             break;
           case 'storage':
-            const storage = await import('../Products/StorageBox.jsx');
-            products = storage.products;
+            {
+              const mod = await import('../../data/products/storageBox');
+              products = mod.storageBoxProducts || [];
+            }
             break;
           case 'laundry':
-            const laundry = await import('../Products/laundryBin.jsx');
-            products = laundry.products;
+            {
+              const mod = await import('../../data/products/laundryBin');
+              products = mod.laundryBinProducts || [];
+            }
             break;
           case 'lamp':
-            const lamp = await import('../Products/LampShade.jsx');
-            products = lamp.products;
+            {
+              const mod = await import('../../data/products/lampShade');
+              products = mod.lampShadeProducts || [];
+            }
             break;
           case 'flower vase':
-            const vase = await import('../Products/FlowerVase.jsx');
-            products = vase.products;
+            {
+              const mod = await import('../../data/products/flowerVase');
+              products = mod.flowerVaseProducts || [];
+            }
             break;
           case 'essential':
-            const essential = await import('../Products/Essential.jsx');
-            products = essential.products;
+            {
+              const mod = await import('../../data/products/essential');
+              products = mod.essentialProducts || [];
+            }
             break;
           default:
             products = [];

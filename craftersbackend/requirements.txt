@@ -1,3 +1,6 @@
+django>=4.2
+djangorestframework
 djangorestframework-simplejwt
 dj-rest-auth[with_social]
 django-allauth
+python-dotenv

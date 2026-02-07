@@ -1,30 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Search, Heart } from 'lucide-react';
 import { Heart as HeartFilled } from 'lucide-react';
-import { useCart } from './contexts/CartContext';
-import { useWishlist } from './contexts/WishlistContext';
+import { useCart, useWishlist } from './contexts';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Import all product data
-import { essentialProducts } from '../data/products/essential';
-import { lampShadeProducts } from '../data/products/lampShade';
-import { laundryBinProducts } from '../data/products/laundryBin';
-import { storageBoxProducts } from '../data/products/storageBox';
-import { homeDecorProducts } from '../data/products/homeDecor';
-import { flowerVaseProducts } from '../data/products/flowerVase';
+import { getAllProducts } from '../api/products';
 
-// Combine all products
-const allProducts = [
-  ...essentialProducts.map(product => ({ ...product, category: 'Essential' })),
-  ...lampShadeProducts.map(product => ({ ...product, category: 'Lamp Shade' })),
-  ...laundryBinProducts.map(product => ({ ...product, category: 'Laundry Bin' })),
-  ...storageBoxProducts.map(product => ({ ...product, category: 'Storage Box' })),
-  ...homeDecorProducts.map(product => ({ ...product, category: 'Home Decor' })),
-  ...flowerVaseProducts.map(product => ({ ...product, category: 'Flower Vase' }))
-];
+// products will be fetched from backend `/api/products/`
 
 const categories = ['All', 'Essential', 'Lamp Shade', 'Laundry Bin', 'Storage Box', 'Home Decor', 'Flower Vase'];
 
@@ -36,6 +21,18 @@ const SearchPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [sortBy, setSortBy] = useState('featured');
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    getAllProducts()
+      .then(list => { if (mounted) setAllProducts(list); })
+      .catch(err => { console.error('Failed to load products from API:', err); })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
 
   const handleSearch = () => {
     setQuery(searchInput);
@@ -94,10 +91,11 @@ const SearchPage = () => {
   };
 
   const filteredProducts = allProducts.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(query.toLowerCase()) ||
-                         product.description.toLowerCase().includes(query.toLowerCase());
-    const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
-    
+    const name = (product.name || '').toLowerCase();
+    const desc = (product.description || '').toLowerCase();
+    const matchesSearch = name.includes(query.toLowerCase()) || desc.includes(query.toLowerCase());
+    const prodCategory = product.categoryName || product.category || 'Unknown';
+    const matchesCategory = selectedCategory === 'All' || prodCategory === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
     switch (sortBy) {
@@ -175,7 +173,7 @@ const SearchPage = () => {
             >
               <div className="relative aspect-square">
                 <img
-                  src={product.imageUrl}
+                  src={product.imageUrl || product.images?.[0]?.image_url || "https://via.placeholder.com/300"}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -205,10 +203,10 @@ const SearchPage = () => {
               </div>
               <div className="p-4">
                 <h3 className="font-medium text-gray-900">{product.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{product.category}</p>
+                <p className="text-sm text-gray-600 mt-1">{product.categoryName || product.category}</p>
                 <div className="mt-2 flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">₹{product.sellingPrice}</span>
-                  <span className="text-sm text-gray-500 line-through">₹{product.actualPrice}</span>
+                  <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
+                  <span className="text-sm text-gray-500 line-through">₹{product.actualPrice || ''}</span>
                 </div>
                 <div className="mt-2 flex items-center">
                   <div className="flex">

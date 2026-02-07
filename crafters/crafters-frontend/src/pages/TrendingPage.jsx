@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, ShoppingCart, Search, Filter, ChevronDown, Star } from 'lucide-react';
-import { useCart } from '../components/contexts/CartContext';
-import { useWishlist } from '../components/contexts/WishlistContext';
+import { useCart, useWishlist } from '../components/contexts';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../components/Navbar';

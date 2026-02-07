@@ -12,8 +12,6 @@ import {
   FaLinkedinIn,
 } from "react-icons/fa";
 
-import { supabase } from "./../supabaseClient";
-
 const ContactUs = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -32,22 +30,14 @@ const ContactUs = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { data, error } = await supabase
-      .from('contact_us')
-      .insert([formData]);
-
-    if (error) {
-      console.error("Supabase insert error:", error);
-      alert("Failed to send message. Please try again.");
-    } else {
-      alert("Message sent successfully!");
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-    }
+    // No backend call – just local success behaviour
+    alert("Message sent successfully!");
+    setFormData({
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    });
   };
 
   const fadeIn = {
@@ -72,7 +62,8 @@ const ContactUs = () => {
           className="text-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}>
+          transition={{ duration: 0.6 }}
+        >
           <h1 className="text-4xl sm:text-5xl font-bold text-[#72442c] mb-4">
             Get in Touch
           </h1>
@@ -88,7 +79,8 @@ const ContactUs = () => {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
           variants={staggerContainer}
           initial="initial"
-          animate="animate">
+          animate="animate"
+        >
           {[
             {
               icon: <FaPhoneAlt className="text-white text-xl" />,
@@ -118,7 +110,8 @@ const ContactUs = () => {
             <motion.div
               key={index}
               className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-              variants={fadeIn}>
+              variants={fadeIn}
+            >
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-[#72442c] rounded-full flex items-center justify-center">
                   {item.icon}
@@ -138,7 +131,8 @@ const ContactUs = () => {
             className="bg-white rounded-xl shadow-lg p-8"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}>
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="text-2xl font-bold text-[#72442c] mb-6">
               Send Us a Message
             </h2>
@@ -197,14 +191,16 @@ const ContactUs = () => {
                   onChange={handleChange}
                   rows="5"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#72442c] focus:border-transparent transition-all duration-300"
-                  placeholder="Your message..."></textarea>
+                  placeholder="Your message..."
+                ></textarea>
               </div>
 
               <motion.button
                 type="submit"
                 className="w-full bg-[#72442c] text-white py-3 px-6 rounded-lg hover:bg-[#8d724a] transition-all duration-300"
                 whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}>
+                whileTap={{ scale: 0.98 }}
+              >
                 Send Message
               </motion.button>
             </form>
@@ -215,7 +211,8 @@ const ContactUs = () => {
             className="space-y-8"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}>
+            transition={{ duration: 0.6 }}
+          >
             {/* Map */}
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
               <iframe
@@ -226,7 +223,8 @@ const ContactUs = () => {
                 style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"
-                className="w-full"></iframe>
+                className="w-full"
+              ></iframe>
             </div>
 
             {/* Social Links */}
@@ -242,7 +240,8 @@ const ContactUs = () => {
                       href="#"
                       className="w-10 h-10 bg-[#72442c] rounded-full flex items-center justify-center text-white hover:bg-[#8d724a] transition-all duration-300"
                       whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}>
+                      whileTap={{ scale: 0.9 }}
+                    >
                       <Icon />
                     </motion.a>
                   )

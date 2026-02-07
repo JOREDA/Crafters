@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
+import { useCart, useWishlist } from '../contexts';
 import { Heart, ShoppingCart } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import { getAllProducts } from '../../api/products';
 import { ToastContainer } from 'react-toastify';
 
 function CategoryProducts({ currentProduct }) {
@@ -16,28 +16,13 @@ function CategoryProducts({ currentProduct }) {
   useEffect(() => {
     const loadRelatedProducts = async () => {
       try {
-        let products = [];
-        // Map category names to file names
-        const categoryMap = {
-          'Home Decor': 'HomeDecor',
-          'Storage': 'StorageBox',
-          'Laundry': 'laundryBin',
-          'Lamp': 'LampShade',
-          'Flower Vase': 'FlowerVase',
-          'Essential': 'Essential'
-        };
-
-        // Get the correct file name based on the current product's category
-        const fileName = categoryMap[currentProduct.category];
-        if (fileName) {
-          // Import the correct product file
-          const module = await import(`../Products/${fileName}.jsx`);
-          products = module.products
-            .filter(p => p.id !== currentProduct.id) // Exclude current product
-            .slice(0, 8); // Show up to 8 related products
-        }
-
-        setRelatedProducts(products);
+        const products = await getAllProducts();
+        const prodCategory = currentProduct.categoryName || currentProduct.category || currentProduct.category_name || null;
+        const filtered = products.filter(p => {
+          const name = p.categoryName || p.category;
+          return name && prodCategory && name.toLowerCase().includes(String(prodCategory).toLowerCase()) && p.id !== currentProduct.id;
+        }).slice(0, 8);
+        setRelatedProducts(filtered);
       } catch (error) {
         console.error('Error loading related products:', error);
         setRelatedProducts([]);

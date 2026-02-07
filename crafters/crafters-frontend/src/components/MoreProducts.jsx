@@ -1,8 +1,7 @@
 import React, { useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Zoom } from "react-reveal";
-import { useCart } from "../components/contexts/CartContext";
-import { useWishlist } from "../components/contexts/WishlistContext";
+import { motion } from "framer-motion";
+import { useCart, useWishlist } from "../components/contexts";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -238,8 +237,7 @@ const MoreProducts = () => {
               );
 
               return (
-                <Zoom key={product.id}>
-                  <div className="group bg-white min-w-[250px] rounded-lg overflow-hidden shadow-md relative transition-transform hover:scale-105">
+                <motion.div key={product.id} className="group bg-white min-w-[250px] rounded-lg overflow-hidden shadow-md relative transition-transform hover:scale-105" initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                     <div className="relative w-full h-64 overflow-hidden">
                       <img
                         src={product.imageUrl}
@@ -318,8 +316,7 @@ const MoreProducts = () => {
                         </span>
                       </div>
                     </div>
-                  </div>
-                </Zoom>
+                </motion.div>
               );
             })}
           </div>

@@ -1,18 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { Heart as HeartFilled } from 'lucide-react';
-import { useCart } from './contexts/CartContext';
-import { useWishlist } from './contexts/WishlistContext';
+import { useCart, useWishlist } from './contexts';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { storageBoxProducts } from '../data/products/storageBox';
+import { getAllProducts } from '../api/products';
 
 const StorageBox = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const allProducts = await getAllProducts();
+        const storage = allProducts.filter(p => p.categoryName?.toLowerCase() === 'storage' || p.category?.toLowerCase() === 'storage');
+        setProducts(storage.slice(0, 4));
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, []);
 
   const calculateDiscount = (actualPrice, sellingPrice) => {
     return Math.round(((actualPrice - sellingPrice) / actualPrice) * 100);
@@ -72,7 +89,17 @@ const StorageBox = () => {
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Storage Box Collection</h1>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {storageBoxProducts.map((product) => (
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">No products found</p>
+            </div>
+          ) : (
+            <>
+              {products.map((product) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0 }}
@@ -137,6 +164,8 @@ const StorageBox = () => {
               </div>
             </motion.div>
           ))}
+            </>
+          )}
         </div>
       </div>
     </div>

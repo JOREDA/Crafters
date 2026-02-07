@@ -1,5 +1,5 @@
 import React from 'react';
-import Flip from 'react-reveal/Flip';
+import { motion } from 'framer-motion';
 import product6 from '../assets/product_no_6.jpg';
 import product7 from '../assets/product_no_7.jpg';
 import product8 from '../assets/product_no_8.jpg';
@@ -63,7 +63,7 @@ const OurGlimpses = () => {
           {/* Left side - 4 images in 2 rows */}
           <div className="grid grid-rows-2 gap-4 col-span-2">
             <div className="grid grid-cols-2 gap-4 h-full">
-              <Flip top>
+              <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[0].url}
                 alt={images[0].alt}
@@ -74,70 +74,70 @@ const OurGlimpses = () => {
                 alt={images[1].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-               </Flip>
+               </motion.div>
             </div>
             <div className="grid grid-cols-2 gap-4 h-full">
-               <Flip top>
+               <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[2].url}
                 alt={images[2].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
-               <Flip top>
+              </motion.div>
+               <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[3].url}
                 alt={images[3].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
+              </motion.div>
             </div>
           </div>
 
           {/* Center image - reduced size */}
           <div className="col-span-2 flex items-center justify-center">
-             <Flip top>
+             <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <img
               src={images[4].url}
               alt={images[4].alt}
               className="object-cover w-full h-full rounded-lg shadow"
             />
-           </Flip>
+           </motion.div>
           </div>
 
           {/* Right side - 4 images in 2 rows */}
           <div className="grid grid-rows-2 gap-4 col-span-2">
             <div className="grid grid-cols-2 gap-4 h-full">
-                <Flip top>
+                <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[5].url}
                 alt={images[5].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
-                  <Flip top>
+              </motion.div>
+                  <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[6].url}
                 alt={images[6].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
+              </motion.div>
             </div>
             <div className="grid grid-cols-2 gap-4 h-full">
-                <Flip top>
+                <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[7].url}
                 alt={images[7].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
-              <Flip top>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <img
                 src={images[8].url}
                 alt={images[8].alt}
                 className="object-cover w-full h-full rounded-lg shadow"
               />
-              </Flip>
+              </motion.div>
             </div>
           </div>
         </div>

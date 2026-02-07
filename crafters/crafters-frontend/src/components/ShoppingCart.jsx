@@ -6,8 +6,8 @@ import {
   Trash2,
   ShoppingCart as ShoppingCartIcon,
 } from "lucide-react";
-import Slide from "react-reveal/Slide";
-import { useCart } from "../components/contexts/CartContext";
+import { motion } from "framer-motion";
+import { useCart } from "../components/contexts";
 import { NavLink } from "react-router-dom";
 
 const ShoppingCart = ({ cartOpen, setCartOpen }) => {
@@ -25,8 +25,13 @@ const ShoppingCart = ({ cartOpen, setCartOpen }) => {
       }`}
     >
       {cartOpen && (
-        <Slide right fast>
-          <div className="bg-white shadow-lg h-full flex flex-col">
+        <motion.div
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={{ duration: 0.3 }}
+          className="bg-white shadow-lg h-full flex flex-col"
+        >
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b">
               <h2 className="text-xl font-bold text-[#72442c]">Your Cart</h2>
@@ -135,8 +140,7 @@ const ShoppingCart = ({ cartOpen, setCartOpen }) => {
                 </NavLink>
               </div>
             )}
-          </div>
-        </Slide>
+          </motion.div>
       )}
     </div>
   );

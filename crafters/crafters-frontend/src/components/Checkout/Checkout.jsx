@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../contexts/CartContext';
+import { useCart, useAuth } from '../contexts';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 import { ArrowLeft, CreditCard, Truck } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+
 
 const Checkout = () => {
   const navigate = useNavigate();

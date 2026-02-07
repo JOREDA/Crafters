@@ -1,15 +1,19 @@
 import React from 'react';
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebookF } from 'react-icons/fa';
-import Zoom from 'react-reveal/Zoom';
+import { motion } from 'framer-motion';
 import { NavLink } from 'react-router-dom';
 
 const Register = () => {
   return (
     <>
-      <Zoom top>
-        <div className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-10">
-          <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-10"
+      >
+        <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
             <h2 className="text-2xl font-bold text-[#72442c] text-center mb-6">Create Your Account</h2>
 
             {/* Registration Form */}
@@ -75,8 +79,7 @@ const Register = () => {
               Already have an account? <NavLink to="/login" className="text-[#72442c] font-medium hover:underline">Login here</NavLink>
             </p>
           </div>
-        </div>
-      </Zoom>
+        </motion.div>
     </>
   );
 };

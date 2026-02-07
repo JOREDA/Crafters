@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { supabase } from "../supabaseClient";
-import Zoom from "react-reveal/Zoom";
-import { useAuth } from "../components/contexts/AuthContext";
+import { motion } from "framer-motion";
+import { useAuth } from "../components/contexts";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,46 +27,45 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      // No Supabase / backend call here.
+      // Fake a successful login object for AuthContext:
+      const fakeUserData = {
+        user: {
+          email: formData.email,
+        },
+        session: null,
+      };
 
-      if (error) {
-        setMessage("❌ " + error.message);
-        setMessageType("error");
-        return;
-      }
+      login(fakeUserData);
 
-      // Call the login function from AuthContext
-      login(data);
-
-      setMessage("✅ Login successful! Redirecting...");
+      setMessage(" Login successful! Redirecting...");
       setMessageType("success");
 
-      // Get the redirect path from session storage or default to home
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/';
-      sessionStorage.removeItem('redirectAfterLogin'); // Clear the stored path
+      const redirectPath = sessionStorage.getItem("redirectAfterLogin") || "/";
+      sessionStorage.removeItem("redirectAfterLogin");
 
       setTimeout(() => {
         setMessage("");
-        navigate(redirectPath); // redirect to the stored path
+        navigate(redirectPath);
       }, 2000);
     } catch (err) {
-      setMessage("❌ Something went wrong: " + err.message);
+      setMessage(" Something went wrong: " + err.message);
       setMessageType("error");
     }
   };
 
   return (
-    <Zoom top>
-      <div className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-10">
-        <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen flex items-center justify-center bg-[#fef9f4] px-4 py-12 mt-10"
+    >
+      <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8">
           <h2 className="text-2xl font-bold text-[#72442c] text-center mb-6">
             Welcome Back
           </h2>
 
-          {/* Message popup */}
           {message && (
             <div
               className={`mb-4 text-center py-2 px-4 rounded-md text-sm font-medium ${
@@ -80,10 +78,11 @@ const Login = () => {
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">Email</label>
+              <label className="block text-sm text-gray-700 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 name="email"
@@ -96,7 +95,9 @@ const Login = () => {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm text-gray-700 mb-1">Password</label>
+              <label className="block text-sm text-gray-700 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 name="password"
@@ -126,8 +127,7 @@ const Login = () => {
             </NavLink>
           </p>
         </div>
-      </div>
-    </Zoom>
+      </motion.div>
   );
 };
 

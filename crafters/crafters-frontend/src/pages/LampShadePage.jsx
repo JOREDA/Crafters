@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import LampShade from '../components/Products/LampShade'
+import { LampShade } from '../components/Products'
 
 class LampShadePage extends Component {
   render() {

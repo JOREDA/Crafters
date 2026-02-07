@@ -1,6 +1,6 @@
 import React from 'react';
 import { Truck, RefreshCcw, ShieldCheck, HandHeart } from 'lucide-react';  // Using lucide-react icons
-import Flip from 'react-reveal/Flip';
+import { motion } from 'framer-motion';
 const CustomerSatisfaction = () => {
   const items = [
     {
@@ -30,13 +30,11 @@ const CustomerSatisfaction = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 border-t border-b divide-y md:divide-y-0 md:divide-x">
           
         {items.map((item, index) => (
-          <div key={index} className="flex flex-col items-center text-center py-6 px-4">
-            <Flip top>
+          <motion.div key={index} className="flex flex-col items-center text-center py-6 px-4" initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             {item.icon}
             <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
             <p className="text-gray-600">{item.description}</p>
-          </Flip>
-          </div>
+          </motion.div>
            
         ))}
       </div>

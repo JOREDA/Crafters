@@ -1,7 +1,6 @@
 import React from "react";
 import { Heart, Search, ShoppingCart, RefreshCcw } from "lucide-react";
-import { useWishlist } from "../components/contexts/WishlistContext";
-import { useCart } from "../components/contexts/CartContext";
+import { useWishlist, useCart } from "../components/contexts";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";

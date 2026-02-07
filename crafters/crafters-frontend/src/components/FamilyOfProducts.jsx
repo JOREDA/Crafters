@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
-import Zoom from 'react-reveal/Zoom';
+import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import 'swiper/css';
 import 'swiper/css/pagination';
@@ -97,8 +97,12 @@ const FamilyOfProducts = () => {
         >
           {products.map((category, index) => (
             <SwiperSlide key={index}>
-              <Zoom top>
-                <div className="flex flex-col items-center justify-center transition-all duration-300 hover:scale-105">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: false }}
+                className="flex flex-col items-center justify-center transition-all duration-300 hover:scale-105">
                   <div className="relative w-28 h-28 md:w-40 md:h-40 xl:w-44 xl:h-44 rounded-full overflow-hidden bg-white text-[#72442c]">
                     <Link to={category.link}>
                       <img
@@ -109,9 +113,8 @@ const FamilyOfProducts = () => {
                     </Link>
                   </div>
                   <p className="mt-4 text-sm text-[#72442c] font-extrabold">{category.name}</p>
-                </div>
-              </Zoom>
-            </SwiperSlide>
+                </motion.div>
+              </SwiperSlide>
           ))}
         </Swiper>
       </div>

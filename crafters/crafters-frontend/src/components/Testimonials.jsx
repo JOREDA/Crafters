@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Zoom from 'react-reveal/Zoom';
+import { motion } from 'framer-motion';
 import { FaQuoteLeft } from 'react-icons/fa';
 
 const testimonials = [
@@ -69,8 +69,14 @@ const Testimonials = () => {
 
           <div className="flex gap-6 max-w-6xl">
             {currentTestimonials.map((testimonial, index) => (
-              <Zoom key={index}>
-                <div className="flex-1 bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: false }}
+                className="flex-1 bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
                   <div className="text-[#72442c] mb-4">
                     <FaQuoteLeft size={32} />
                   </div>
@@ -81,8 +87,7 @@ const Testimonials = () => {
                     <p className="font-semibold text-[#72442c] text-lg">{testimonial.name}</p>
                     <p className="text-gray-600">{testimonial.role}</p>
                   </div>
-                </div>
-              </Zoom>
+                </motion.div>
             ))}
           </div>
 
